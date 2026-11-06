@@ -1,0 +1,9 @@
+# Scripts must keep LF endings (bash/gradlew break on CRLF), even on Windows checkouts.
+* text=auto
+*.sh      text eol=lf
+gradlew   text eol=lf
+*.py      text eol=lf
+*.bat     text eol=crlf
+*.png     binary
+*.gif     binary
+*.jar     binary

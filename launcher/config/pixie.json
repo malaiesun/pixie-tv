@@ -1,0 +1,116 @@
+{
+  "theme_preset": "retro",
+  "theme_overrides": {},
+  "mascot": "on",
+  "launch_animation": "theme",
+  "wallpaper": "",
+  "wallpaper_dim": 0.45,
+  "clock_24h": false,
+  "greeting": "",
+  "favorite_tile_width_dp": 196,
+  "columns": 6,
+  "rows": [
+    "favorites",
+    "inputs",
+    "recent",
+    "apps"
+  ],
+  "favorites": [
+    "com.google.android.youtube.tv",
+    "com.netflix.ninja",
+    "in.startv.hotstar",
+    "org.smarttube.stable"
+  ],
+  "hidden": [
+    "com.smartdevice.livetv",
+    "me.efesser.flauncher"
+  ],
+  "live_tv_package": "com.smartdevice.livetv",
+  "recent_count": 8,
+  "home_assistant": {
+    "url": "__FROM_local.env__",
+    "token": "__FROM_ha/.token__",
+    "poll_seconds": 30,
+    "chips": [
+      {
+        "entity": "weather.forecast_home"
+      },
+      {
+        "entity": "switch.light",
+        "label": "Light"
+      },
+      {
+        "entity": "switch.fan",
+        "label": "Fan"
+      },
+      {
+        "entity": "switch.led_light",
+        "label": "LED"
+      },
+      {
+        "entity": "light.wiz_tunable_white_afbe1e",
+        "label": "WiZ"
+      }
+    ],
+    "panel": [
+      {
+        "entity": "weather.forecast_home"
+      },
+      {
+        "entity": "switch.light",
+        "label": "Light"
+      },
+      {
+        "entity": "switch.fan",
+        "label": "Fan"
+      },
+      {
+        "entity": "switch.led_light",
+        "label": "LED Light"
+      },
+      {
+        "entity": "light.wiz_tunable_white_afbe1e",
+        "label": "WiZ"
+      },
+      {
+        "entity": "light.wled",
+        "label": "Ceiling Bar"
+      },
+      {
+        "entity": "light.wleds",
+        "label": "Wleds"
+      },
+      {
+        "entity": "switch.pc",
+        "label": "PC"
+      },
+      {
+        "entity": "input_boolean.theatre_mode",
+        "label": "Theatre"
+      },
+      {
+        "entity": "input_boolean.gaming_mode",
+        "label": "Gaming"
+      },
+      {
+        "entity": "input_boolean.dnd",
+        "label": "Do Not Disturb"
+      },
+      {
+        "entity": "input_boolean.sunrise_mode",
+        "label": "Sunrise"
+      },
+      {
+        "entity": "input_boolean.alarm",
+        "label": "Alarm"
+      }
+    ]
+  },
+  "agent": {
+    "port": 8765,
+    "volume_overlay": true,
+    "volume_step": 1,
+    "power_entity": "media_player.pixie_2",
+    "assist_language": "en"
+  }
+}

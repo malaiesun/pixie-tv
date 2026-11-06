@@ -1,0 +1,249 @@
+{
+  "_entities": {
+    "remote_player": "media_player.pixie_2",
+    "remote": "remote.pixie",
+    "adb_player": "__ADB_PLAYER__"
+  },
+  "pixie_input": {
+    "alias": "PIXIE: switch input",
+    "description": "Switch the TV input via Android TV Remote (no ADB needed).",
+    "icon": "mdi:video-input-hdmi",
+    "mode": "restart",
+    "fields": {
+      "input": {
+        "name": "Input",
+        "required": true,
+        "default": "hdmi1",
+        "selector": {
+          "select": {
+            "options": [
+              {
+                "label": "HDMI 1",
+                "value": "hdmi1"
+              },
+              {
+                "label": "HDMI 2",
+                "value": "hdmi2"
+              },
+              {
+                "label": "HDMI 3",
+                "value": "hdmi3"
+              },
+              {
+                "label": "AV",
+                "value": "av"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "variables": {
+      "ids": {
+        "hdmi1": "com.mediatek.tvinput%2F.hdmi.HDMIInputService%2FHW5",
+        "hdmi2": "com.mediatek.tvinput%2F.hdmi.HDMIInputService%2FHW6",
+        "hdmi3": "com.mediatek.tvinput%2F.hdmi.HDMIInputService%2FHW7",
+        "av": "com.mediatek.tvinput%2F.composite.CompositeInputService%2FHW2"
+      }
+    },
+    "sequence": [
+      {
+        "action": "media_player.play_media",
+        "target": {
+          "entity_id": "media_player.pixie_2"
+        },
+        "data": {
+          "media_content_type": "url",
+          "media_content_id": "content://android.media.tv/passthrough/{{ ids[input | default('hdmi1')] }}"
+        }
+      }
+    ]
+  },
+  "pixie_hdmi_1": {
+    "alias": "PIXIE: HDMI 1",
+    "icon": "mdi:video-input-hdmi",
+    "sequence": [
+      {
+        "action": "script.pixie_input",
+        "data": {
+          "input": "hdmi1"
+        }
+      }
+    ]
+  },
+  "pixie_hdmi_2": {
+    "alias": "PIXIE: HDMI 2",
+    "icon": "mdi:video-input-hdmi",
+    "sequence": [
+      {
+        "action": "script.pixie_input",
+        "data": {
+          "input": "hdmi2"
+        }
+      }
+    ]
+  },
+  "pixie_hdmi_3": {
+    "alias": "PIXIE: HDMI 3",
+    "icon": "mdi:video-input-hdmi",
+    "sequence": [
+      {
+        "action": "script.pixie_input",
+        "data": {
+          "input": "hdmi3"
+        }
+      }
+    ]
+  },
+  "pixie_av": {
+    "alias": "PIXIE: AV",
+    "icon": "mdi:video-input-component",
+    "sequence": [
+      {
+        "action": "script.pixie_input",
+        "data": {
+          "input": "av"
+        }
+      }
+    ]
+  },
+  "pixie_open_app": {
+    "alias": "PIXIE: open app",
+    "description": "Deep links go through Android TV Remote; apps without one (package names) go through ADB.",
+    "icon": "mdi:apps",
+    "mode": "restart",
+    "fields": {
+      "app": {
+        "name": "App",
+        "required": true,
+        "default": "https://www.youtube.com",
+        "selector": {
+          "select": {
+            "options": [
+              {
+                "label": "YouTube",
+                "value": "https://www.youtube.com"
+              },
+              {
+                "label": "SmartTube",
+                "value": "org.smarttube.stable"
+              },
+              {
+                "label": "Netflix",
+                "value": "https://www.netflix.com/browse"
+              },
+              {
+                "label": "JioHotstar",
+                "value": "https://www.hotstar.com/in"
+              }
+            ],
+            "custom_value": true
+          }
+        }
+      }
+    },
+    "sequence": [
+      {
+        "choose": [
+          {
+            "conditions": [
+              {
+                "condition": "template",
+                "value_template": "{{ '://' in app }}"
+              }
+            ],
+            "sequence": [
+              {
+                "action": "media_player.play_media",
+                "target": {
+                  "entity_id": "media_player.pixie_2"
+                },
+                "data": {
+                  "media_content_type": "url",
+                  "media_content_id": "{{ app }}"
+                }
+              }
+            ]
+          }
+        ],
+        "default": [
+          {
+            "action": "media_player.select_source",
+            "target": {
+              "entity_id": "__ADB_PLAYER__"
+            },
+            "data": {
+              "source": "{{ app }}"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "pixie_key": {
+    "alias": "PIXIE: press key",
+    "description": "Remote key via Android TV Remote: DPAD_UP/DOWN/LEFT/RIGHT, DPAD_CENTER, BACK, HOME, MENU, MEDIA_PLAY_PAUSE, VOLUME_UP, MUTE, POWER...",
+    "icon": "mdi:remote-tv",
+    "mode": "queued",
+    "fields": {
+      "key": {
+        "name": "Key",
+        "required": true,
+        "default": "DPAD_CENTER",
+        "example": "DPAD_CENTER",
+        "selector": {
+          "text": {}
+        }
+      },
+      "repeats": {
+        "name": "Repeats",
+        "default": 1,
+        "selector": {
+          "number": {
+            "min": 1,
+            "max": 20
+          }
+        }
+      }
+    },
+    "sequence": [
+      {
+        "action": "remote.send_command",
+        "target": {
+          "entity_id": "remote.pixie"
+        },
+        "data": {
+          "command": "{{ key }}",
+          "num_repeats": "{{ repeats | default(1) | int(1) }}"
+        }
+      }
+    ]
+  },
+  "pixie_shell": {
+    "alias": "PIXIE: shell command (ADB)",
+    "description": "Run an adb shell command on the TV. Result lands in the adb_response attribute of the ADB media player.",
+    "icon": "mdi:console",
+    "mode": "queued",
+    "fields": {
+      "command": {
+        "name": "Command",
+        "required": true,
+        "example": "getprop ro.product.model",
+        "selector": {
+          "text": {}
+        }
+      }
+    },
+    "sequence": [
+      {
+        "action": "androidtv.adb_command",
+        "target": {
+          "entity_id": "__ADB_PLAYER__"
+        },
+        "data": {
+          "command": "{{ command }}"
+        }
+      }
+    ]
+  }
+}

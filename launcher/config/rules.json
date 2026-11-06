@@ -1,0 +1,26 @@
+[
+  { "name": "Gear button: tap = PIXIE quick panel", "key": "NOTIFICATION", "press": "single", "do": [{ "panel": "quick" }] },
+  { "name": "Gear button: hold = Home Assistant panel", "key": "NOTIFICATION", "press": "long", "do": [{ "panel": "ha" }] },
+  { "name": "Gear button held (remote's own hold event) = Home Assistant panel", "key": "PROFILE_SWITCH", "press": "single", "do": [{ "panel": "ha" }] },
+
+  { "name": "Blue shortcut button: tap = app switcher", "key": "DAILY", "press": "single", "do": [{ "panel": "apps" }] },
+  { "name": "Blue shortcut button: hold = HA Assist (talk to Home Assistant)", "key": "DAILY", "press": "long", "do": [{ "voice": "ha" }] },
+
+  { "name": "YouTube button: tap = YouTube", "key": "YOUTUBE", "press": "single", "do": [{ "open_app": "com.google.android.youtube.tv" }] },
+  { "name": "YouTube button: hold = SmartTube (no ads)", "key": "YOUTUBE", "press": "long", "do": [{ "open_app": "org.smarttube.stable" }] },
+
+  { "name": "Double Back on Home = quick panel", "key": "BACK", "press": "double", "in_app": "home", "do": [{ "panel": "quick" }] },
+
+  { "name": "Search key (phone remote app / other remotes): tap = choose Gemini or HA Assist", "key": "SEARCH", "press": "single", "do": [{ "panel": "voice" }] },
+  { "name": "Assist key (other remotes): tap = choose Gemini or HA Assist", "key": "ASSIST", "press": "single", "do": [{ "panel": "voice" }] },
+
+  { "name": "YouTube after 23:00 = offer a sleep timer", "app_opened": "com.google.android.youtube.tv", "after": "23:00", "before": "04:00",
+    "do": [{ "popup": { "id": "latenight", "title": "Late night", "text": "Set a 30 minute sleep timer?",
+      "buttons": [{ "label": "Yes, 30 min", "do": [{ "sleep_timer": 30 }] }, { "label": "No thanks" }] } }] },
+  { "name": "SmartTube after 23:00 = offer a sleep timer", "app_opened": "org.smarttube.stable", "after": "23:00", "before": "04:00",
+    "do": [{ "popup": { "id": "latenight", "title": "Late night", "text": "Set a 30 minute sleep timer?",
+      "buttons": [{ "label": "Yes, 30 min", "do": [{ "sleep_timer": 30 }] }, { "label": "No thanks" }] } }] },
+
+  { "name": "Example (off): Guide button hold = toggle the Light", "enabled": false, "key": "GUIDE", "press": "long",
+    "do": [{ "ha_service": { "service": "homeassistant.toggle", "entity_id": "switch.light" } }, { "toast": "Light toggled" }] }
+]

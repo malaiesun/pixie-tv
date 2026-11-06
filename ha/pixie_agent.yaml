@@ -1,0 +1,155 @@
+# Home Assistant -> PIXIE agent (the app on the TV). Lets HA show notifications/popups on the TV,
+# open panels, change the theme, start a sleep timer, open links.
+#
+# Install:
+#   1. Copy this file to /config/packages/pixie_agent.yaml, and make sure configuration.yaml has
+#        homeassistant:
+#          packages: !include_dir_named packages
+#   2. Add to /config/secrets.yaml (the token is in ha/.pixie-token on the PC, already paired):
+#        pixie_agent_auth: "Bearer <paste the token here>"
+#   3. Developer tools > YAML > check config, then restart Home Assistant.
+#
+# The TV's own control (inputs, apps, keys) is the scripts already in HA (script.pixie_*), which
+# use the Android TV Remote and ADB integrations. This file adds what only the PIXIE agent can do.
+
+rest_command:
+  pixie_action:
+    url: "http://TV_IP:8765/api/action"        # replace TV_IP with your TV's address
+    method: POST
+    headers:
+      Authorization: !secret pixie_agent_auth
+    content_type: "application/json"
+    payload: "{{ action | to_json }}"
+    timeout: 10
+
+script:
+  pixie_notify:
+    alias: "PIXIE: notification on the TV"
+    icon: mdi:message-badge
+    fields:
+      title: { name: Title, default: Home, selector: { text: } }
+      message: { name: Message, required: true, selector: { text: } }
+      seconds: { name: Seconds, default: 6, selector: { number: { min: 2, max: 60 } } }
+    sequence:
+      - action: rest_command.pixie_action
+        data:
+          action:
+            notify: { title: "{{ title | default('Home') }}", text: "{{ message }}", seconds: "{{ seconds | default(6) | int }}" }
+
+  pixie_toast:
+    alias: "PIXIE: small toast on the TV"
+    icon: mdi:message-outline
+    fields:
+      message: { name: Message, required: true, selector: { text: } }
+    sequence:
+      - action: rest_command.pixie_action
+        data:
+          action: { toast: { text: "{{ message }}" } }
+
+  pixie_popup:
+    alias: "PIXIE: popup with buttons"
+    icon: mdi:message-question
+    description: >
+      Shows a popup. Each button can call an HA webhook, so an automation can react to the answer
+      (see the example at the bottom). id names the popup; the webhook gets {"button": label}.
+    fields:
+      id: { name: Id, default: ha_popup, selector: { text: } }
+      title: { name: Title, default: Home, selector: { text: } }
+      message: { name: Message, required: true, selector: { text: } }
+      yes_label: { name: First button, default: "Yes", selector: { text: } }
+      no_label: { name: Second button, default: "No", selector: { text: } }
+      webhook_id: { name: Webhook id for the answer, default: pixie_popup_answer, selector: { text: } }
+    sequence:
+      - action: rest_command.pixie_action
+        data:
+          action:
+            popup:
+              id: "{{ id | default('ha_popup') }}"
+              title: "{{ title | default('Home') }}"
+              text: "{{ message }}"
+              timeout: 60
+              buttons:
+                - label: "{{ yes_label | default('Yes') }}"
+                  do: [{ ha_webhook: { id: "{{ webhook_id | default('pixie_popup_answer') }}", data: { popup: "{{ id | default('ha_popup') }}", button: "{{ yes_label | default('Yes') }}" } } }]
+                - label: "{{ no_label | default('No') }}"
+                  do: [{ ha_webhook: { id: "{{ webhook_id | default('pixie_popup_answer') }}", data: { popup: "{{ id | default('ha_popup') }}", button: "{{ no_label | default('No') }}" } } }]
+
+  pixie_panel:
+    alias: "PIXIE: open a panel on the TV"
+    icon: mdi:view-dashboard
+    fields:
+      name: { name: Panel, default: ha, selector: { select: { options: [ha, quick, apps, voice] } } }
+    sequence:
+      - action: rest_command.pixie_action
+        data:
+          action: { panel: { name: "{{ name | default('ha') }}" } }
+
+  pixie_theme:
+    alias: "PIXIE: change the TV theme"
+    icon: mdi:palette
+    fields:
+      preset: { name: Theme, default: next, selector: { select: { options: [next, comic, hero, retro, neon, aurora, minimal] } } }
+    sequence:
+      - action: rest_command.pixie_action
+        data:
+          action: { theme: { preset: "{{ preset | default('next') }}" } }
+
+  pixie_open_url:
+    alias: "PIXIE: open a link on the TV"
+    icon: mdi:link
+    fields:
+      url: { name: URL, required: true, selector: { text: } }
+    sequence:
+      - action: rest_command.pixie_action
+        data:
+          action: { open_url: { url: "{{ url }}" } }
+
+  pixie_sleep_timer:
+    alias: "PIXIE: sleep timer"
+    icon: mdi:timer-sand
+    fields:
+      minutes: { name: Minutes (0 = off), default: 30, selector: { number: { min: 0, max: 240 } } }
+    sequence:
+      - action: rest_command.pixie_action
+        data:
+          action: { sleep_timer: { minutes: "{{ minutes | default(30) | int }}" } }
+
+# ---------------------------------------------------------------- examples (uncomment to use)
+#
+# automation:
+#   # Door opened while the TV is on -> notification on the TV
+#   - alias: "PIXIE: door opened"
+#     triggers:
+#       - trigger: state
+#         entity_id: switch.door_lock          # change to your door sensor
+#         to: "on"
+#     conditions:
+#       - condition: state
+#         entity_id: media_player.pixie_2
+#         state: "on"
+#     actions:
+#       - action: script.pixie_notify
+#         data: { title: "Front door", message: "The door was opened." }
+#
+#   # Answer from a pixie_popup (any popup that used webhook pixie_popup_answer)
+#   - alias: "PIXIE: popup answered"
+#     triggers:
+#       - trigger: webhook
+#         webhook_id: pixie_popup_answer
+#         allowed_methods: [POST]
+#         local_only: true
+#     actions:
+#       - action: persistent_notification.create
+#         data:
+#           title: "TV popup answered"
+#           message: "{{ trigger.json.popup }}: {{ trigger.json.button }}"
+#
+#   # Theatre mode on -> Neon theme on the TV
+#   - alias: "PIXIE: theatre mode theme"
+#     triggers:
+#       - trigger: state
+#         entity_id: input_boolean.theatre_mode
+#         to: "on"
+#     actions:
+#       - action: script.pixie_theme
+#         data: { preset: neon }

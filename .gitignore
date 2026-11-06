@@ -1,0 +1,40 @@
+# Secrets
+ha/.token
+*.adbkey
+adbkey*
+
+# Device dumps: serials, Wi-Fi networks, account hints. Keep local, never publish.
+recon/
+shots/
+
+# Reference repos (cloned, not ours)
+ref/
+
+# Build output
+build/
+.gradle/
+*.apk
+
+# PIXIE agent token for tvctl
+pc/.pixie.json
+ha/.pixie-token
+
+# machine-specific
+launcher/local.properties
+
+# your network: TV IP, Home Assistant URL (see local.env.example)
+local.env
+
+# editors / tooling
+.idea/
+*.iml
+.vscode/
+__pycache__/
+*.pyc
+.kotlin/
+.DS_Store
+Thumbs.db
+
+# our own notes: the plan and the TV's change log (scripts write it), not part of the project
+TV-SOFTMOD-PLAN.md
+changes.log

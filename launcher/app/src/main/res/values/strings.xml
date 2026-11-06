@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="agent_name">PIXIE agent</string>
+    <string name="agent_summary">Remote shortcuts, Home Assistant panel, volume slider, LAN control</string>
+    <string name="agent_description">PIXIE listens to remote buttons to run your shortcuts (Settings hold for the Home Assistant panel, the blue button for the app switcher, the mic button for Gemini or HA Assist), shows its own volume slider, and lets paired devices on your network send links, text and files. It reads the focused text field only when a paired device types into it, and it logs no key presses.</string>
+</resources>

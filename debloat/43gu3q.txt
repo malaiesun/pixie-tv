@@ -1,0 +1,80 @@
+# Infinix 43GU3Q (Skyworth SW6H, MediaTek m7332, product SW6H_NS_NF, Veira Electronics, India)
+# Android TV 14 (API 34), Google TV home, build UTT1.250517.001, ~1.9 GB RAM, 32-bit ARM.
+# Twin of tv-vibehack's examples/thomson-sppl-4k-sw6h (same board and build).
+#
+# Apply one batch:  bash scripts/disable.sh debloat/43gu3q.txt <batch>
+# Undo everything:  bash debloat/restore.sh            (add --dry-run to only print)
+# Everything is DISABLED for user 0, never uninstalled.
+#
+# Disabled from the factory, so NOT listed (restore would turn it ON): org.liskovsoft.androidtv.rukeyboard
+# Owner uses only YouTube, Netflix and JioHotstar (in.startv.hotstar) for streaming.
+# Kept: YouTube, Netflix, Chromecast + Miracast/DLNA (Home Assistant / Music Assistant play to the TV
+#   through them), Assistant/katniss and dreamx screensaver (not decided yet), TalkBack, USB media player.
+# Home handover (launcherx, setupwraith) is Phase 3, not in this file.
+#
+# Quirks on this firmware, checked on the TV 2026-11-05:
+# - Wireless debugging always switches off at boot. The firmware sets service.adb.tcp.port=5555, so
+#   turning on USB debugging (settings put global adb_enabled 1, persists) makes adbd listen on 5555
+#   at every boot: ADB is back ~50 s after power-on with no remote presses.
+# - setupwraith owned the Wi-Fi saved during first setup; re-joining the network from Settings moved it to
+#   android.uid.system, after which setupwraith + launcherx were disabled safely (2 cold reboots checked).
+# - Each saved Wi-Fi network gets its own randomized MAC, so the TV's IP depends on which SSID it joins
+#   (2.4 GHz duplicate SSID gave a different IP). Keep one SSID saved, or reserve the IP in the router.
+# - The remote is BLE ("TV BLE Remote"). Learned keys: gear = NOTIFICATION (83), gear held = PROFILE_SWITCH
+#   (288, ~0.6 s later), blue shortcut = DAILY (433), Netflix = BUTTON_4 (191), Prime = PRIMEVIDEO (409),
+#   YouTube = YOUTUBE (479), Input = TV_INPUT (178), plus GUIDE (172). The mic sends no key event: it talks
+#   to Gemini over the remote's voice channel, so key filters can't remap it.
+# - Settings > Privacy > Usage & diagnostics does nothing on this build (the Play Services screen behind it
+#   isn't exported); send_action_app_error set to 0 instead.
+# - Android TV Remote (6466/6467) and Google Cast (8008/8009) are up ~35 s after boot, no ADB needed.
+# - Wireless debugging also switches off when the TV changes Wi-Fi network (it once auto-joined another
+#   saved network mid-session).
+# - Port 5555 can go "offline" mid-session; the Wireless debugging (TLS) transport is steadier.
+# - `adb exec-out screencap` is corrupted (adbd banner on stdout): screencap to a file, then pull.
+# - HDMI switching works with: am start -a android.intent.action.VIEW -d
+#   content://android.media.tv/passthrough/com.mediatek.tvinput%2F.hdmi.HDMIInputService%2FHW5  (HW6, HW7 = HDMI 2, 3)
+# - Applied 2026-11-05 in 5 batches; Home, YouTube and HDMI 1 checked after each batch: all ok.
+
+## batch 1: Google/Android telemetry and ad services
+com.google.android.feedback                    # Google feedback/crash reporter
+com.android.tv.feedbackconsent                 # feedback consent prompt
+com.android.adservices.api                     # Android ad services (Privacy Sandbox)
+com.android.ondevicepersonalization.services   # on-device ad personalisation
+com.android.federatedcompute.services          # federated learning uploads
+
+## batch 2: Skyworth retail demos and popups
+com.smartdevice.epopplayer                     # ePop shop demo player
+fusion.android.tv.demo                         # shop demo player
+com.coocaa.demonow.lightining                  # "Demo Now" retail mode
+com.mstar.android.tv.disclaimercustomization   # retail legal-disclaimer popups
+com.Smartdevice.emanual                        # on-screen manual
+
+## batch 3: Skyworth content rows, auto-installs, own wizard
+com.smartdevice.recommendation                 # Coocaa recommendation rows, Sensors Data analytics
+com.smartdevice.leanbacklauncher.customizer    # partner config that injects home-screen rows
+android.autoinstalls.config.google.gtvpai      # Play auto-installs of partner apps
+com.smartdevice.myapp                          # Skyworth "My App" shortcut page
+com.smartdevice.setupwraith                    # Skyworth first-run/privacy wizard (not Google's; no HOME claim)
+
+## batch 4: not needed on a TV
+com.android.healthconnect.controller           # Health Connect
+com.android.health.connect.backuprestore       # Health Connect backup
+com.google.android.syncadapters.calendar       # Calendar sync (20 MB resident)
+com.google.android.play.games                  # Play Games (23 MB resident)
+com.smartdevice.dailymanage                    # Skyworth boot service, no documented purpose
+
+## batch 5: after-sale service (owner approved; may also be the firmware-update path)
+com.smartdevice.aftersale                      # boot receiver, location, accounts, can install APKs
+
+## batch 6: preinstalled streaming apps the owner doesn't use
+com.amazon.amazonvideo.livingroom              # Prime Video
+com.google.android.youtube.tvmusic             # YouTube Music
+com.google.android.videos                      # "Google TV" movies/shop app (also a TV input for previews)
+
+## batch 7: streaming apps the owner installed but doesn't use (disabled, not uninstalled; re-enable any time)
+com.plexapp.android                            # Plex
+com.graymatrix.did                             # ZEE5
+com.sonyliv                                    # SonyLIV
+com.discoveryplus.tv.android                   # discovery+
+com.jio.media.stb.ondemand                     # old JioCinema app (JioHotstar is in.startv.hotstar, kept)
+app.netmirror.netmirrortv                      # NetMirror

@@ -1,0 +1,40 @@
+{
+  "theme": {
+    "background": "#0B0D12",
+    "surface": "#1B1F27",
+    "text": "#FFFFFF",
+    "text_dim": "#99FFFFFF",
+    "accent": "#5B8CFF",
+    "wallpaper": "",
+    "wallpaper_dim": 0.45
+  },
+  "clock_24h": false,
+  "greeting": "",
+  "favorite_tile_width_dp": 196,
+  "columns": 6,
+  "rows": [
+    "favorites",
+    "inputs",
+    "recent",
+    "apps"
+  ],
+  "favorites": [
+    "com.google.android.youtube.tv",
+    "com.netflix.ninja",
+    "in.startv.hotstar",
+    "org.smarttube.stable"
+  ],
+  "hidden": [
+    "com.smartdevice.livetv"
+  ],
+  "live_tv_package": "com.smartdevice.livetv",
+  "recent_count": 8,
+  "home_assistant": {
+    "url": "",
+    "token": "",
+    "poll_seconds": 30,
+    "chips": []
+  },
+  "mascot": "on",
+  "launch_animation": "theme"
+}
